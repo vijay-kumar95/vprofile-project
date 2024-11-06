@@ -1,0 +1,49 @@
+#version: '3.8'  # Use a valid version; Docker Compose version '5.3' is not supported
+
+services:
+  vprodb:
+    build: 
+      context: ./Docker-files/db
+    image: vijaykumar273/vprofiledb
+    container_name: vprodb
+    ports:
+      - "3306:3306"
+    volumes:
+      - vprodbdata:/var/lib/mysql  # Correct syntax for mounting volumes
+    environment:
+      - MYSQL_ROOT_PASSWORD=vprodbpass  # Remove quotes around environment variable values
+  
+  vprocache01:
+    image: memcached
+    ports:
+      - "11211:11211"  # Correct syntax for ports
+  
+  vpromq01:
+    image: rabbitmq
+    ports:
+      - "15672:15672"  # Correct syntax for ports
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+
+  vproapp:
+    build: 
+      context: ./Docker-files/app
+    image: vijaykumar273/vprofileapp
+    container_name: vproapp
+    ports:
+      - "8080:8080"
+    volumes:
+      - vproappdata:/usr/local/tomcat/webapps  # Correct syntax for mounting volumes
+ 
+  vproweb:
+    build:   
+      context: ./Docker-files/web
+    image: vijaykumar273/vprofileweb
+    container_name: vproweb
+    ports:
+      - "80:80"
+    
+volumes:
+  vprodbdata: {}
+  vproappdata: {}
